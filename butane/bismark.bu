@@ -23,20 +23,20 @@ passwd:
 
 systemd:
   units:
-    - name: ucore-signed-autorebase.service
+    - name: autorebase.service
       enabled: true
       contents: |
         [Unit]
-        Description=uCore autorebase to signed OCI and reboot
-        ConditionPathExists=!/etc/ucore-autorebase/signed
+        Description=Autorebase to signed OCI custom image and reboot
+        ConditionPathExists=!/etc/autorebase/signed
         After=network-online.target
         Wants=network-online.target
         [Service]
         Type=oneshot
         StandardOutput=journal+console
-        ExecStart=/usr/bin/rpm-ostree rebase --bypass-driver ostree-image-signed:docker://ghcr.io/ublue-os/ucore:stable
-        ExecStart=/usr/bin/touch /etc/ucore-autorebase/signed
-        ExecStart=/usr/bin/systemctl disable ucore-signed-autorebase.service
+        ExecStart=/usr/bin/rpm-ostree rebase --bypass-driver ostree-image-signed:docker://ghcr.io/cole-s-lab/server-os:stable
+        ExecStart=/usr/bin/touch /etc/autorebase/signed
+        ExecStart=/usr/bin/systemctl disable autorebase.service
         ExecStart=/usr/bin/systemctl reboot
         [Install]
         WantedBy=multi-user.target
