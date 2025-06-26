@@ -1,0 +1,48 @@
+name: Transpile Butane to Ignition
+
+on:
+  push:
+    branches:
+      - main # Or your default branch name
+    paths:
+      - 'butane/**.bu'
+
+permissions:
+  contents: write # Required to commit changes back to the repository
+
+jobs:
+  transpile:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Transpile Butane files
+        run: |
+          # Ensure the output directory exists
+          mkdir -p ignition
+
+          # Loop through all .bu files in the butane directory
+          for bu_file in butane/*.bu; do
+            # Get the base filename without the .bu extension
+            filename=$(basename "$bu_file" .bu)
+            ign_file="ignition/${filename}.ign"
+            
+            echo "Transpiling ${bu_file} to ${ign_file}"
+            
+            # Use the official Butane container to transpile the file.
+            # We mount the current directory into the container and set it as the working directory.
+            # --files-dir tells butane where to look for other files if your config references any.
+            podman run --rm -v .:/app -w /app quay.io/coreos/butane:release \
+              --files-dir butane \
+              --output "${ign_file}" \
+              "${bu_file}"
+          done
+
+      - name: Commit Ignition files
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: Transpile Butane configs to Ignition"
+          file_pattern: 'ignition/*.ign'
+          commit_user_name: github-actions[bot]
+          commit_user_email: github-actions[bot]@users.noreply.github.com
