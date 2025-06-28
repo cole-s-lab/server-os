@@ -9,7 +9,8 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write # Required to commit changes back to the repository
+  contents: write
+  pull-requests: write # Required for the default token, good practice to keep
 
 jobs:
   transpile:
@@ -17,7 +18,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        token: '${{ secrets.BOT_ACCESS_TOKEN }}'
 
       - name: Transpile Butane files
         run: |
@@ -41,10 +41,25 @@ jobs:
               "${bu_file}"
           done
 
-      - name: Commit Ignition files
-        uses: stefanzweifel/git-auto-commit-action@v5
+      - name: Create Pull Request with Ignition changes
+        id: cpr
+        uses: peter-evans/create-pull-request@v6
         with:
-          commit_message: "chore: Transpile Butane configs to Ignition"
-          file_pattern: 'ignition/*.ign'
-          commit_user_name: github-actions[bot]
-          commit_user_email: github-actions[bot]@users.noreply.github.com
+          token: ${{ secrets.BOT_ACCESS_TOKEN }} # Use PAT to trigger subsequent workflows
+          commit-message: "chore: Transpile Butane configs to Ignition"
+          title: "chore: Update Ignition files from Butane"
+          body: "Automated update of Ignition files after changes to Butane source files."
+          branch: "chore/bot/update-ignition-files"
+          delete-branch: true
+
+      - name: Approve the PR
+        if: steps.cpr.outputs.pull-request-number != ''
+        run: gh pr review --approve "${{ steps.cpr.outputs.pull-request-url }}"
+        env:
+          GH_TOKEN: ${{ secrets.BOT_ACCESS_TOKEN }}
+
+      - name: Enable auto-merge for the PR
+        if: steps.cpr.outputs.pull-request-number != ''
+        run: gh pr merge --auto --squash "${{ steps.cpr.outputs.pull-request-url }}"
+        env:
+          GH_TOKEN: ${{ secrets.BOT_ACCESS_TOKEN }}
