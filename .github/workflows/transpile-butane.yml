@@ -16,6 +16,7 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        token: '${{ secrets.BOT_ACCESS_TOKEN }}'
 
       - name: Transpile Butane files
         run: |
