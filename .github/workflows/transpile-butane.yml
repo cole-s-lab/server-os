@@ -6,6 +6,7 @@ on:
       - main # Or your default branch name
     paths:
       - 'butane/**.bu'
+  workflow_dispatch:
 
 permissions:
   contents: write # Required to commit changes back to the repository
