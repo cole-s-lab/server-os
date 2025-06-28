@@ -45,7 +45,6 @@ jobs:
         id: cpr
         uses: peter-evans/create-pull-request@v6
         with:
-          token: ${{ secrets.BOT_ACCESS_TOKEN }} # Use PAT to trigger subsequent workflows
           commit-message: "chore: Transpile Butane configs to Ignition"
           title: "chore: Update Ignition files from Butane"
           body: "Automated update of Ignition files after changes to Butane source files."
@@ -56,10 +55,10 @@ jobs:
         if: steps.cpr.outputs.pull-request-number != ''
         run: gh pr review --approve "${{ steps.cpr.outputs.pull-request-url }}"
         env:
-          GH_TOKEN: ${{ secrets.BOT_ACCESS_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Enable auto-merge for the PR
         if: steps.cpr.outputs.pull-request-number != ''
         run: gh pr merge --auto --squash "${{ steps.cpr.outputs.pull-request-url }}"
         env:
-          GH_TOKEN: ${{ secrets.BOT_ACCESS_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
