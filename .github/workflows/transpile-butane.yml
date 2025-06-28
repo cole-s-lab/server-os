@@ -51,12 +51,6 @@ jobs:
           branch: "chore/bot/update-ignition-files"
           delete-branch: true
 
-      - name: Approve the PR
-        if: steps.cpr.outputs.pull-request-number != ''
-        run: gh pr review --approve "${{ steps.cpr.outputs.pull-request-url }}"
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Enable auto-merge for the PR
         if: steps.cpr.outputs.pull-request-number != ''
         run: gh pr merge --auto --squash "${{ steps.cpr.outputs.pull-request-url }}"
