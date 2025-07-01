@@ -12,7 +12,7 @@ on:
       - main # Or your default branch name
     paths:
       - 'butane/**.bu'
-      - '.github/workflows/build.yml'
+      - '.github/workflows/transpile-butane.yml'
   workflow_dispatch:
 
 permissions:
