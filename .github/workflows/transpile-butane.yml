@@ -1,11 +1,17 @@
 name: Transpile Butane to Ignition
 
 on:
+  pull:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/build.yml'
   push:
     branches:
       - main # Or your default branch name
     paths:
       - 'butane/**.bu'
+      - '.github/workflows/build.yml'
   workflow_dispatch:
 
 permissions:
