@@ -2,8 +2,10 @@
 
 set -ouex pipefail
 
+dnf5 list installed
+
 dnf5 remove -y \
-  docker \
+  moby-engine \
   docker-compose
 
 dnf5 install -y \
