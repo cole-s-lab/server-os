@@ -1,7 +1,7 @@
 name: Transpile Butane to Ignition
 
 on:
-  pull:
+  pull_request:
     branches:
       - main
     paths:
