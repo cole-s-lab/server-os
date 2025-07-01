@@ -6,7 +6,7 @@ on:
       - main
     paths:
       - 'butane/**.bu'
-      - '.github/workflows/transpile_butane.yml'
+      - '.github/workflows/transpile-butane.yml'
   push:
     branches:
       - main # Or your default branch name
