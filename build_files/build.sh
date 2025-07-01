@@ -3,8 +3,8 @@
 set -ouex pipefail
 
 dnf5 remove -y \
-  moby-engine \
-  docker-compose
+  docker-cli \
+  moby-engine
 
 dnf5 install -y \
   podman-compose \
