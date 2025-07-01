@@ -5,7 +5,8 @@ on:
     branches:
       - main
     paths:
-      - '.github/workflows/build.yml'
+      - 'butane/**.bu'
+      - '.github/workflows/transpile_butane.yml'
   push:
     branches:
       - main # Or your default branch name
