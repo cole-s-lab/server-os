@@ -1,11 +1,17 @@
 name: Transpile Butane to Ignition
 
 on:
+  pull:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/build.yml'
   push:
     branches:
       - main # Or your default branch name
     paths:
       - 'butane/**.bu'
+      - '.github/workflows/build.yml'
   workflow_dispatch:
 
 permissions:
@@ -44,6 +50,7 @@ jobs:
       - name: Create Pull Request with Ignition changes
         id: cpr
         uses: peter-evans/create-pull-request@v7
+        if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
         with:
           commit-message: "chore: Transpile Butane configs to Ignition"
           title: "chore: Update Ignition files from Butane"
@@ -52,7 +59,7 @@ jobs:
           delete-branch: true
 
       - name: Enable auto-merge for the PR
-        if: steps.cpr.outputs.pull-request-number != ''
+        if: steps.cpr.outputs.pull-request-number != '' && github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
         run: gh pr merge --auto --squash "${{ steps.cpr.outputs.pull-request-url }}"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

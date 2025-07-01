@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'butane/**.bu'
+      - '.github/workflows/build.yml'
 
 jobs:
   validate:
