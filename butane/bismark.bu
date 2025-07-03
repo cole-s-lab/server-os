@@ -7,6 +7,9 @@ storage:
       mode: 0644
       contents:
         inline: 'bismark'
+  directories:
+    - path: /etc/autorebase
+      mode: 0754
 
 passwd:
   users:
@@ -53,7 +56,7 @@ systemd:
         [Service]
         Type=oneshot
         StandardOutput=journal+console
-        ExecStart=/usr/bin/rpm-ostree rebase --bypass-driver ostree-image-signed:docker://ghcr.io/cole-s-lab/server-os:stable
+        ExecStart=/usr/bin/rpm-ostree rebase --bypass-driver ostree-image-signed:docker://ghcr.io/cole-s-lab/server-os:latest
         ExecStart=/usr/bin/touch /etc/autorebase/server-os-signed
         ExecStart=/usr/bin/systemctl disable server-os-autorebase.service
         ExecStart=/usr/bin/systemctl reboot
