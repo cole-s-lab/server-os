@@ -2,6 +2,9 @@
 
 set -ouex pipefail
 
+dnf5 install -y \
+  iptables-services
+
 ### Install packages
 
 # Packages can be installed from any enabled yum repo on the image.
@@ -20,4 +23,7 @@ set -ouex pipefail
 
 #### Example for enabling a System Unit File
 
+systemctl disable firewalld
+
 systemctl enable podman.socket
+systemctl enable iptables
