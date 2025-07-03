@@ -26,4 +26,5 @@ dnf5 install -y \
 systemctl disable firewalld
 
 systemctl enable podman.socket
-systemctl enable iptables
+systemctl enable podman-restart.service
+systemctl enable iptables.service
