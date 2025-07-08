@@ -1,0 +1,61 @@
+variant: fcos
+version: 1.6.0
+
+storage:
+  files:
+    - path: /etc/hostname
+      mode: 0644
+      contents:
+        inline: 'ramuh'
+
+passwd:
+  users:
+    - name: cole
+      groups: [ "wheel" ]
+      password_hash: "$y$j9T$tUOqDZjPeKDtdNVdp6.671$LeH21dgQCgAnvtptgt8ieNMx.Tg.vZmh4nW0YU13toB"
+      ssh_authorized_keys:
+        - "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC+ziXDt2Q0azhssyzus9IR4cBBhTi1o+Ry/xG4P/cERAFUs5qBc7Yx3wwE4QhROQzM9IvAMPnxF9QjUzAMOQRPyzWMyEQZ2IuIMQG5iHag28PzerNmz/MW/RLgCH0mpV2hEnMnY9omuSTwFz/kLVW83OeU6Vjrf3e50j1cu2YSwt6jQ1xgtMd3Z9VuUl6cmyKYLomgRnY67grwIWKazn2FSzQqppYo4TeZ4gqKP8xwGyy59X2M9uIjXRnX5HTAt/gy8tWQ0zDKmv///QluVoytbAlTbGN/EWdrUajV56vBl5MuZXjgVTOtuA70Kct8znPD4cTdzWY2/05cY/dEIbEoCQjbT/EE8LhB/0XoJZTbgU9hZ6jIy6KhteBERbU/fJAAXyjSmyXWO6/A9jLYZIW7OOhaSF6baUcxJmzk/9R+O5ZZ1iCbNiDCf/ZJAFcdDVumfdSMiWLi/7F1fPpAzbJLfvso++45URAdFqiPIcbFMipROn0Kqk3QScAF4N5qyhOHIRRJUmLy0IhN9lUcKQqVwEStfEkTxaNBbGhmgRUPs9ByjX2ouvC47YqtVjOq41RC+r3nskv3zblUgdsJaJBzF32nidFafzxEtmwTS8D5AgF7CmR5Esut96Y9CoxWO4RHQbVstVI8/5Y/2JCjAqkmvTSdEVY62DTb1ouK29kGWw== cardno:26_088_586"
+    - name: ansible
+      groups: [ "wheel" ]
+      password_hash: "$y$j9T$gOH8WDGm4jaXzMynHMe7N1$vVVO/nbtUxjmZgGHXxRjYH6GAw3esWcyIMCbiKfgQ.0"
+      ssh_authorized_keys:
+        - "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC+ziXDt2Q0azhssyzus9IR4cBBhTi1o+Ry/xG4P/cERAFUs5qBc7Yx3wwE4QhROQzM9IvAMPnxF9QjUzAMOQRPyzWMyEQZ2IuIMQG5iHag28PzerNmz/MW/RLgCH0mpV2hEnMnY9omuSTwFz/kLVW83OeU6Vjrf3e50j1cu2YSwt6jQ1xgtMd3Z9VuUl6cmyKYLomgRnY67grwIWKazn2FSzQqppYo4TeZ4gqKP8xwGyy59X2M9uIjXRnX5HTAt/gy8tWQ0zDKmv///QluVoytbAlTbGN/EWdrUajV56vBl5MuZXjgVTOtuA70Kct8znPD4cTdzWY2/05cY/dEIbEoCQjbT/EE8LhB/0XoJZTbgU9hZ6jIy6KhteBERbU/fJAAXyjSmyXWO6/A9jLYZIW7OOhaSF6baUcxJmzk/9R+O5ZZ1iCbNiDCf/ZJAFcdDVumfdSMiWLi/7F1fPpAzbJLfvso++45URAdFqiPIcbFMipROn0Kqk3QScAF4N5qyhOHIRRJUmLy0IhN9lUcKQqVwEStfEkTxaNBbGhmgRUPs9ByjX2ouvC47YqtVjOq41RC+r3nskv3zblUgdsJaJBzF32nidFafzxEtmwTS8D5AgF7CmR5Esut96Y9CoxWO4RHQbVstVI8/5Y/2JCjAqkmvTSdEVY62DTb1ouK29kGWw== cardno:26_088_586"
+
+systemd:
+  units:
+    - name: ucore-unsigned-autorebase.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=uCore autorebase to unsigned OCI and reboot
+        ConditionPathExists=!/etc/autorebase/ucore-unverified
+        ConditionPathExists=!/etc/autorebase/server-os-signed
+        After=network-online.target
+        Wants=network-online.target
+        [Service]
+        Type=oneshot
+        StandardOutput=journal+console
+        ExecStart=/usr/bin/rpm-ostree rebase --bypass-driver ostree-unverified-registry:ghcr.io/ublue-os/ucore:stable
+        ExecStart=/usr/bin/touch /etc/autorebase/ucore-unverified
+        ExecStart=/usr/bin/systemctl disable ucore-unsigned-autorebase.service
+        ExecStart=/usr/bin/systemctl reboot
+        [Install]
+        WantedBy=multi-user.target
+    - name: server-os-autorebase.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Autorebase to signed OCI custom image and reboot
+        ConditionPathExists=/etc/autorebase/ucore-unverified
+        ConditionPathExists=!/etc/autorebase/server-os-signed
+        After=network-online.target
+        Wants=network-online.target
+        [Service]
+        Type=oneshot
+        StandardOutput=journal+console
+        ExecStart=/usr/bin/rpm-ostree rebase --bypass-driver ostree-image-signed:docker://ghcr.io/cole-s-lab/server-os:stable
+        ExecStart=/usr/bin/touch /etc/autorebase/server-os-signed
+        ExecStart=/usr/bin/systemctl disable server-os-autorebase.service
+        ExecStart=/usr/bin/systemctl reboot
+        [Install]
+        WantedBy=multi-user.target
